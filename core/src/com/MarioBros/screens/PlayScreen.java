@@ -5,6 +5,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import com.MarioBros.Utilidades.B2WorldCreator;
 import com.MarioBros.Utilidades.WorldContactListener;
 import com.MarioBros.game.MarioBros;
+import com.MarioBros.interfaces.Entradas;
 import com.MarioBros.scenes.Hud;
 import com.MarioBros.sprites.Mario;
 import com.MarioBros.sprites.enemies.Enemy;
@@ -15,10 +16,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
@@ -26,7 +25,6 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -50,7 +48,8 @@ public class PlayScreen implements Screen {
 	private Box2DDebugRenderer b2dr;
 	private B2WorldCreator creator;
 
-	private Mario player;
+	private Mario player, player2;
+	private Entradas entradas = new Entradas();
 
 	private Music music;
 
@@ -82,12 +81,13 @@ public class PlayScreen implements Screen {
 		creator = new B2WorldCreator(this);
 
 		player = new Mario(this);
+		player2 = new Mario(this);
 
 		world.setContactListener(new WorldContactListener());
 
 		music = MarioBros.manager.get("audio/music/mario_music.ogg", Music.class);
 		music.setLooping(true);
-		music.setVolume(0.3f);
+		music.setVolume(0.1f);
 		music.play();
 
 		items = new Array<Item>();
@@ -127,6 +127,17 @@ public class PlayScreen implements Screen {
 //            if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE))
 //                player.fire();
 		}
+		
+		if (player2.currentState != Mario.State.DEAD) {
+			if (Gdx.input.isKeyJustPressed(Input.Keys.I))
+				player2.jump();
+			if (Gdx.input.isKeyPressed(Input.Keys.L) && player2.b2body.getLinearVelocity().x <= 2)
+				player2.b2body.applyLinearImpulse(new Vector2(0.1f, 0), player2.b2body.getWorldCenter(), true);
+			if (Gdx.input.isKeyPressed(Input.Keys.J) && player2.b2body.getLinearVelocity().x >= -2)
+				player2.b2body.applyLinearImpulse(new Vector2(-0.1f, 0), player2.b2body.getWorldCenter(), true);
+//            if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE))
+//                player.fire();
+		}
 
 	}
 
@@ -137,6 +148,7 @@ public class PlayScreen implements Screen {
 		world.step(1 / 60f, 6, 2);
 
 		player.update(dt);
+		player2.update(dt);
 		for (Enemy enemy : creator.getEnemies()) {
 			enemy.update(dt);
 			if (enemy.getX() < player.getX() + 224 / MarioBros.PPM) {
@@ -169,9 +181,11 @@ public class PlayScreen implements Screen {
 
 	@Override
 	public void render(float delta) {
-
+		System.out.println(player.getX());
+		System.out.println(player2.getX());
+		
 		update(delta);
-
+		
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
@@ -182,6 +196,7 @@ public class PlayScreen implements Screen {
 		game.batch.setProjectionMatrix(gamecam.combined);
 		game.batch.begin();
 		player.draw(game.batch);
+		player2.draw(game.batch);
 		for (Enemy enemy : creator.getEnemies())
 			enemy.draw(game.batch);
 		for (Item item : items)
@@ -197,6 +212,10 @@ public class PlayScreen implements Screen {
 		}
 		
 		if(player.isPuedeSalir()) {
+			game.setScreen(new EndScreen(game));
+			dispose();
+		}
+		if(player2.isPuedeSalir()) {
 			game.setScreen(new EndScreen(game));
 			dispose();
 		}

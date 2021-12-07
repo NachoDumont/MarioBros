@@ -23,7 +23,7 @@ public class Entradas implements InputProcessor {
 		if(keycode == Keys.L) l = true;
 		if(keycode == Keys.I) i = true;
 		
-		Utiles.listener.keyDown(keycode);		
+		Utiles.listener.keyDown(keycode);
 		return false;
 	}
 
@@ -36,10 +36,10 @@ public class Entradas implements InputProcessor {
 		if(keycode==Keys.LEFT) izquierda = false;	
 		
 //		Player 2
-		if(keycode == Keys.J) j = true;
-		if(keycode == Keys.K) k = true;
-		if(keycode == Keys.L) l = true;
-		if(keycode == Keys.I) i = true;
+		if(keycode == Keys.J) j = false;
+		if(keycode == Keys.K) k = false;
+		if(keycode == Keys.L) l = false;
+		if(keycode == Keys.I) i = false;
 		
 		Utiles.listener.keyDown(keycode);
 		return true;

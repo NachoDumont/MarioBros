@@ -53,6 +53,7 @@ public class Mario extends Sprite {
 	private boolean timeToRedefineMario;
 	private boolean marioIsDead;
 	private boolean llegoSalida;
+	private int cont;
 
 	private PlayScreen screen;
 
@@ -339,7 +340,8 @@ public class Mario extends Sprite {
 
 		b2body.createFixture(fdef).setUserData(this);
 	}
-
+	
+	
 	/*
 	 * public void fire(){ fireballs.add(new FireBall(screen,
 	 * b2body.getPosition().x, b2body.getPosition().y, runningRight ? true :
