@@ -3,9 +3,16 @@ package com.MarioBros.screens;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import com.MarioBros.Utilidades.B2WorldCreator;
+import com.MarioBros.Utilidades.Config;
+import com.MarioBros.Utilidades.Recursos;
+import com.MarioBros.Utilidades.Render;
+import com.MarioBros.Utilidades.Texto;
+import com.MarioBros.Utilidades.Utiles;
 import com.MarioBros.Utilidades.WorldContactListener;
 import com.MarioBros.game.MarioBros;
 import com.MarioBros.interfaces.Entradas;
+import com.MarioBros.interfaces.JuegoEventListener;
+import com.MarioBros.red.Cliente;
 import com.MarioBros.scenes.Hud;
 import com.MarioBros.sprites.Mario;
 import com.MarioBros.sprites.enemies.Enemy;
@@ -15,7 +22,9 @@ import com.MarioBros.sprites.items.Mushroom;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
@@ -25,11 +34,16 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.scenes.scene2d.Event;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
-public class PlayScreen implements Screen {
+public class PlayScreen implements Screen,JuegoEventListener{
+	
+	private Cliente cliente;
+	boolean empieza = false;
+	private Entradas io;
 	
 	private MarioBros game;
 	private TextureAtlas atlas;
@@ -43,18 +57,20 @@ public class PlayScreen implements Screen {
 	private TiledMap map;
 	private OrthogonalTiledMapRenderer renderer;
 
+	private Texto espera;
+	
 	private World world;
 	// Dibuja el contorno de todas las cajas de colision
 	private Box2DDebugRenderer b2dr;
 	private B2WorldCreator creator;
 
-	private Mario player, player2;
-	private Entradas entradas = new Entradas();
+	private Mario player,player2;
 
 	private Music music;
 
 	private Array<Item> items;
 	private LinkedBlockingQueue<ItemDef> itemsToSpawn;
+	private int jugador = 0;
 
 	public PlayScreen(MarioBros game) {
 		
@@ -66,8 +82,12 @@ public class PlayScreen implements Screen {
 
 		gamePort = new FitViewport(MarioBros.V_WIDTH / MarioBros.PPM, MarioBros.V_HEIGHT / MarioBros.PPM, gamecam);
 
-		hud = new Hud(game.batch);
+		hud = new Hud(Render.sb);
 
+		espera = new Texto(Recursos.FUENTE,40,Color.WHITE,false);
+		espera.setTexto("Esperando otro jugador");
+		espera.setPosition((Config.ANCHO/2)-(espera.getAncho()/2),(Config.ALTO/2)+(espera.getAlto()/2));
+		
 		maploader = new TmxMapLoader();
 		map = maploader.load("level1.tmx");
 		renderer = new OrthogonalTiledMapRenderer(map, 1 / MarioBros.PPM);
@@ -92,6 +112,12 @@ public class PlayScreen implements Screen {
 
 		items = new Array<Item>();
 		itemsToSpawn = new LinkedBlockingQueue<ItemDef>();
+
+		Utiles.listener = this;
+		io = new Entradas();
+		Gdx.input.setInputProcessor(io);
+		cliente = new Cliente();
+		cliente.enviarMensaje("Conexion");
 	}
 
 	public void spawnItem(ItemDef idef) {
@@ -127,16 +153,15 @@ public class PlayScreen implements Screen {
 //            if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE))
 //                player.fire();
 		}
-		
 		if (player2.currentState != Mario.State.DEAD) {
 			if (Gdx.input.isKeyJustPressed(Input.Keys.I))
 				player2.jump();
-			if (Gdx.input.isKeyPressed(Input.Keys.L) && player2.b2body.getLinearVelocity().x <= 2)
+			if (Gdx.input.isKeyPressed(Input.Keys.J) && player2.b2body.getLinearVelocity().x <= 2)
 				player2.b2body.applyLinearImpulse(new Vector2(0.1f, 0), player2.b2body.getWorldCenter(), true);
-			if (Gdx.input.isKeyPressed(Input.Keys.J) && player2.b2body.getLinearVelocity().x >= -2)
+			if (Gdx.input.isKeyPressed(Input.Keys.L) && player2.b2body.getLinearVelocity().x >= -2)
 				player2.b2body.applyLinearImpulse(new Vector2(-0.1f, 0), player2.b2body.getWorldCenter(), true);
 //            if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE))
-//                player.fire();
+//                player2.fire();
 		}
 
 	}
@@ -173,6 +198,18 @@ public class PlayScreen implements Screen {
 			gamecam.position.x = player.b2body.getPosition().x;
 		}
 
+		if (player2.getY() < 0) {
+			player2.currentState = Mario.State.DEAD;
+		}
+		
+		if (player2.getX() > 32.88f) {
+			player2.llegoSalida();
+		}
+		
+		if (player2.currentState != Mario.State.DEAD) {
+			gamecam.position.x = player2.b2body.getPosition().x;
+		}
+		
 		gamecam.update();
 
 		renderer.setView(gamecam);
@@ -181,45 +218,40 @@ public class PlayScreen implements Screen {
 
 	@Override
 	public void render(float delta) {
-		System.out.println(player.getX());
-		System.out.println(player2.getX());
-		
-		update(delta);
-		
-		Gdx.gl.glClearColor(0, 0, 0, 1);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		if(empieza) {
+			update(delta);
 
-		renderer.render();
+			Gdx.gl.glClearColor(0, 0, 0, 1);
+			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-		b2dr.render(world, gamecam.combined);
+			renderer.render();
 
-		game.batch.setProjectionMatrix(gamecam.combined);
-		game.batch.begin();
-		player.draw(game.batch);
-		player2.draw(game.batch);
-		for (Enemy enemy : creator.getEnemies())
-			enemy.draw(game.batch);
-		for (Item item : items)
-			item.draw(game.batch);
-		game.batch.end();
+			b2dr.render(world, gamecam.combined);
 
-		game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
-		hud.stage.draw();
+			Render.sb.setProjectionMatrix(gamecam.combined);
+			Render.begin();
+				player.draw(Render.sb);
+				player2.draw(Render.sb);
+				for (Enemy enemy : creator.getEnemies())
+					enemy.draw(Render.sb);
+				for (Item item : items)
+					item.draw(Render.sb);
+			Render.end();
 
-		if (gameOver()) {
-			game.setScreen(new GameOverScreen(game));
-			dispose();
+			Render.sb.setProjectionMatrix(hud.stage.getCamera().combined);
+			hud.stage.draw();
+
+			if (gameOver()) {
+				game.setScreen(new GameOverScreen(game));
+				dispose();
+			}
+			
+		} else {
+			Render.begin();
+				espera.dibujar();
+			Render.end();
 		}
 		
-		if(player.isPuedeSalir()) {
-			game.setScreen(new EndScreen(game));
-			dispose();
-		}
-		if(player2.isPuedeSalir()) {
-			game.setScreen(new EndScreen(game));
-			dispose();
-		}
-
 	}
 
 	public boolean gameOver() {
@@ -269,5 +301,72 @@ public class PlayScreen implements Screen {
 
 	public Hud getHud() {
 		return hud;
+	}
+
+	@Override
+	public boolean handle(Event event) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void empezar() {
+		this.empieza = true;
+	}
+
+	@Override
+	public void keyUp(int keycode) {
+		if(keycode==Keys.UP) {
+			cliente.enviarMensaje("DejoApretarArriba");
+		}
+		if(keycode==Keys.RIGHT) {
+			cliente.enviarMensaje("DejoApretarIzquierda");
+		}		
+		if(keycode==Keys.LEFT) {
+			cliente.enviarMensaje("DejoApretarDerecha");
+		}
+	}
+	
+	@Override
+	public void keyDown(int keycode) {
+		if(keycode==Keys.UP) {
+			cliente.enviarMensaje("ApretoArriba");
+		}
+		if(keycode==Keys.RIGHT) {
+			cliente.enviarMensaje("ApretoIzquierda");
+		}		
+		if(keycode==Keys.LEFT) {
+			cliente.enviarMensaje("ApretarDerecha");
+		}
+	}
+
+	@Override
+	public void asignarJugador(int jugador) {
+		this.jugador  = jugador;
+	}
+
+	@Override
+	public void asignarCoordenadas(int nroJugador, float coordenadasX, float coordenadasY) {
+		if(nroJugador==1) {
+			player.setY(coordenadasY);
+			player.setX(coordenadasX);
+		} else {
+			player2.setY(coordenadasY);
+			player2.setX(coordenadasX);
+		}
+	}
+
+	@Override
+	public void actualizarPuntaje(int nroJugador) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void terminoJuego(int nroJugador) {
+		if(player.isPuedeSalir() && player2.isPuedeSalir()) {
+			game.setScreen(new EndScreen(game));
+			dispose();
+		}
 	}
 }

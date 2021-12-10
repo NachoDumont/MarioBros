@@ -11,41 +11,39 @@ import com.MarioBros.Utilidades.Utiles;
 
 public class HiloCliente extends Thread {
 
-	private DatagramSocket conexion;
-	private boolean fin = false;
+	DatagramSocket socket;
+	boolean fin = false;
 	private InetAddress ipServer;
-	private int puertoServer;
+	private int puerto = 9992;
+	private Cliente cliente;
 
-	public HiloCliente() {
-
+	public HiloCliente(Cliente cliente) {
+		// Cuando creas un socket en el servidor tenes que indicarle el puerto que se va
+		// a usar
 		try {
-			// "255.255.255.255"
-			ipServer = InetAddress.getByName("192.168.100.30");
-			puertoServer = 9998;
-		} catch (UnknownHostException e1) {
-			e1.printStackTrace();
-		}
-
-		try {
-			conexion = new DatagramSocket();
-		} catch (SocketException e) {
+			this.cliente = cliente;
+			socket = new DatagramSocket();
+			// Hay que buscar la manera de que se pueda conectar desde cualquier red
+			ipServer = InetAddress.getByName("192.168.0.55");
+			enviarMensaje("Conectar");
+		} catch (SocketException | UnknownHostException e) {
 			e.printStackTrace();
 		}
+
 	}
 
 	@Override
 	public void run() {
-		do {
-			byte[] data = new byte[1024];
-			DatagramPacket paquete = new DatagramPacket(data, data.length);
+		while (!fin) {
+			byte[] datos = new byte[1024];
+			DatagramPacket paquete = new DatagramPacket(datos, datos.length);
 			try {
-				conexion.receive(paquete);
+				socket.receive(paquete);
 				procesarMensaje(paquete);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-		} while (!fin);
-
+		}
 	}
 
 	private void procesarMensaje(DatagramPacket paquete) {
@@ -55,48 +53,37 @@ public class HiloCliente extends Thread {
 
 		if (mensajeCompuesto.length == 1) {
 			if (msg.equals("Empieza")) {
-				Utiles.listener.empieza();
+				Utiles.listener.empezar();
 			}
 		} else {
 
-			if (mensajeCompuesto[0].equals("ConexionAceptada")) {
+			if (msg.equals("ConexionAceptada")) {
 				Utiles.listener.asignarJugador(Integer.valueOf(mensajeCompuesto[1]));
 				// ipServer mensajeCompuesto[2]
 			}
 
 			if (mensajeCompuesto[0].equals("coordenadas")) {
 				if (mensajeCompuesto[1].equals("p1")) {
-					Utiles.listener.asignarCoordenadas(1, Float.parseFloat(mensajeCompuesto[2]));
+					Utiles.listener.asignarCoordenadas(1, Float.parseFloat(mensajeCompuesto[2]),Float.parseFloat(mensajeCompuesto[3]));
 				} else if (mensajeCompuesto[1].equals("p2")) {
-					Utiles.listener.asignarCoordenadas(2, Float.parseFloat(mensajeCompuesto[2]));
+					Utiles.listener.asignarCoordenadas(2, Float.parseFloat(mensajeCompuesto[2]),Float.parseFloat(mensajeCompuesto[3]));
 				}
 			}
 
-			if (mensajeCompuesto[0].equals("pelota")) {
-				float posX = Float.valueOf(mensajeCompuesto[1]);
-				float posY = Float.valueOf(mensajeCompuesto[2]);
-				Utiles.listener.actualizarPelota(posX, posY);
-			}
-
-			if (mensajeCompuesto[0].equals("punto")) {
-				Utiles.listener.actualizarPuntaje(Integer.parseInt(mensajeCompuesto[1]));
-			}
-
-			if (mensajeCompuesto[0].equals("termino")) {
-				Utiles.listener.terminoJuego(Integer.parseInt(mensajeCompuesto[1]));
-			}
+//			if (mensajeCompuesto[0].equals("termino")) {
+//				Utiles.listener.terminoJuego(Integer.parseInt(mensajeCompuesto[1]));
+//			}
+			
 		}
-
 	}
 
-	public void enviarMensaje(String msg) {
+	void enviarMensaje(String msg) {
 		byte[] data = msg.getBytes();
-		DatagramPacket paquete = new DatagramPacket(data, data.length, ipServer, puertoServer);
 		try {
-			conexion.send(paquete);
+			DatagramPacket paquete = new DatagramPacket(data, data.length, ipServer, puerto);
+			socket.send(paquete);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-
 }

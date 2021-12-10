@@ -23,7 +23,7 @@ public class Entradas implements InputProcessor {
 		if(keycode == Keys.L) l = true;
 		if(keycode == Keys.I) i = true;
 		
-		Utiles.listener.keyDown(keycode);
+		Utiles.listener.keyDown(keycode);		
 		return false;
 	}
 
@@ -41,7 +41,7 @@ public class Entradas implements InputProcessor {
 		if(keycode == Keys.L) l = false;
 		if(keycode == Keys.I) i = false;
 		
-		Utiles.listener.keyDown(keycode);
+		Utiles.listener.keyUp(keycode);
 		return true;
 	}
 

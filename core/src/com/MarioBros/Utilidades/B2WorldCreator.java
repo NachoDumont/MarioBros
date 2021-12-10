@@ -18,7 +18,9 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 
-
+/**
+ * Created by brentaureli on 8/28/15.
+ */
 public class B2WorldCreator {
     private Array<Goomba> goombas;
     private Array<Turtle> turtles;
