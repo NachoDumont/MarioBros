@@ -15,16 +15,12 @@ public class HiloCliente extends Thread {
 	boolean fin = false;
 	private InetAddress ipServer;
 	private int puerto = 9992;
-	private Cliente cliente;
 
-	public HiloCliente(Cliente cliente) {
-		// Cuando creas un socket en el servidor tenes que indicarle el puerto que se va
-		// a usar
+	public HiloCliente() {
+		// Cuando creas un socket en el servidor tenes que indicarle el puerto que se va a usar
 		try {
-			this.cliente = cliente;
-			socket = new DatagramSocket();
-			// Hay que buscar la manera de que se pueda conectar desde cualquier red
-			ipServer = InetAddress.getByName("192.168.0.55");
+			socket = new DatagramSocket(); //Hay que buscar la manera de que se pueda conectar desde cualquier red
+			ipServer = InetAddress.getByName("192.168.0.55"); //Se puede hacer broadcast también 255.255.255.255
 			enviarMensaje("Conectar");
 		} catch (SocketException | UnknownHostException e) {
 			e.printStackTrace();

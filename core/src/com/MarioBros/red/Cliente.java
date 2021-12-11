@@ -7,13 +7,13 @@ public class Cliente {
 	private boolean empiezaJuego = false;
 
 	public Cliente() {
-		hc = new HiloCliente(this);
+		hc = new HiloCliente();
 		hc.start();
 
 		System.out.println("Esperando otro jugador");
 
 		while (!fin) {
-			hc = new HiloCliente(this);
+			hc = new HiloCliente();
 			hc.start();
 		}
 	}
