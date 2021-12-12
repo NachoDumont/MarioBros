@@ -14,23 +14,25 @@ public class HiloCliente extends Thread {
 	DatagramSocket socket;
 	boolean fin = false;
 	private InetAddress ipServer;
-	private int puerto = 9992;
+	private int puerto = 3333;
 
 	public HiloCliente() {
 		// Cuando creas un socket en el servidor tenes que indicarle el puerto que se va a usar
 		try {
-			socket = new DatagramSocket(); //Hay que buscar la manera de que se pueda conectar desde cualquier red
+			socket = new DatagramSocket();//Hay que buscar la manera de que se pueda conectar desde cualquier red
 			ipServer = InetAddress.getByName("192.168.0.55"); //Se puede hacer broadcast también 255.255.255.255
 			enviarMensaje("Conectar");
-		} catch (SocketException | UnknownHostException e) {
+		} catch (UnknownHostException | SocketException e) {
 			e.printStackTrace();
 		}
+		
 
 	}
 
 	@Override
 	public void run() {
-		while (!fin) {
+		
+		while(!fin) {
 			byte[] datos = new byte[1024];
 			DatagramPacket paquete = new DatagramPacket(datos, datos.length);
 			try {
@@ -38,7 +40,7 @@ public class HiloCliente extends Thread {
 				procesarMensaje(paquete);
 			} catch (IOException e) {
 				e.printStackTrace();
-			}
+			}	
 		}
 	}
 
@@ -52,8 +54,8 @@ public class HiloCliente extends Thread {
 				Utiles.listener.empezar();
 			}
 		} else {
-
-			if (msg.equals("ConexionAceptada")) {
+			
+			if (mensajeCompuesto[0].equals("ConexionAceptada")) {
 				Utiles.listener.asignarJugador(Integer.valueOf(mensajeCompuesto[1]));
 				// ipServer mensajeCompuesto[2]
 			}

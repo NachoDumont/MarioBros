@@ -36,7 +36,9 @@ public class Texto {
 	}
 	
 	public void dibujar() {
+		sb.begin();
 		fuente.draw(sb, texto, x, y);
+		sb.end();
 	}
 	
 	public void setColor(Color color) {

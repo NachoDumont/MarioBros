@@ -39,7 +39,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
-public class PlayScreen implements Screen,JuegoEventListener{
+public class PlayScreen implements Screen, JuegoEventListener {
 	
 	private Cliente cliente;
 	boolean empieza = false;
