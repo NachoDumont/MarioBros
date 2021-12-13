@@ -117,7 +117,6 @@ public class PlayScreen implements Screen, JuegoEventListener {
 		io = new Entradas();
 		Gdx.input.setInputProcessor(io);
 		cliente = new Cliente();
-		cliente.enviarMensaje("Conexion");
 	}
 
 	public void spawnItem(ItemDef idef) {
@@ -147,8 +146,8 @@ public class PlayScreen implements Screen, JuegoEventListener {
 			if (Gdx.input.isKeyJustPressed(Input.Keys.UP))
 				player.jump();
 			if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && player.b2body.getLinearVelocity().x <= 2)
-				player.b2body.applyLinearImpulse(new Vector2(0.1f, 0), player.b2body.getWorldCenter(), true);
-			if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && player.b2body.getLinearVelocity().x >= -2)
+				player.b2body.applyLinearImpulse(new Vector2(0.1f, 0), player.b2body.getWorldCenter(), true); //TODO por que no usar player.correrDerecha?
+			if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && player.b2body.getLinearVelocity().x >= -2) //por que no poner aca adentro lo de keyUp y keyDown?
 				player.b2body.applyLinearImpulse(new Vector2(-0.1f, 0), player.b2body.getWorldCenter(), true);
 //            if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE))
 //                player.fire();
@@ -305,7 +304,6 @@ public class PlayScreen implements Screen, JuegoEventListener {
 
 	@Override
 	public boolean handle(Event event) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
@@ -320,10 +318,10 @@ public class PlayScreen implements Screen, JuegoEventListener {
 			cliente.enviarMensaje("DejoApretarArriba");
 		}
 		if(keycode==Keys.RIGHT) {
-			cliente.enviarMensaje("DejoApretarIzquierda");
-		}		
-		if(keycode==Keys.LEFT) {
 			cliente.enviarMensaje("DejoApretarDerecha");
+		}
+		if(keycode==Keys.LEFT) {
+			cliente.enviarMensaje("DejoApretarIzquierda");
 		}
 	}
 	
@@ -333,10 +331,10 @@ public class PlayScreen implements Screen, JuegoEventListener {
 			cliente.enviarMensaje("ApretoArriba");
 		}
 		if(keycode==Keys.RIGHT) {
-			cliente.enviarMensaje("ApretoIzquierda");
+			cliente.enviarMensaje("ApretoDerecha");
 		}		
 		if(keycode==Keys.LEFT) {
-			cliente.enviarMensaje("ApretarDerecha");
+			cliente.enviarMensaje("ApretoIzquierda");
 		}
 	}
 
@@ -358,7 +356,6 @@ public class PlayScreen implements Screen, JuegoEventListener {
 
 	@Override
 	public void actualizarPuntaje(int nroJugador) {
-		// TODO Auto-generated method stub
 		
 	}
 

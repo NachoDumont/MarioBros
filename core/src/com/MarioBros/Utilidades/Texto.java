@@ -15,7 +15,6 @@ public class Texto {
 	private float x=0,y=0;
 	private String texto="";
 	GlyphLayout layout;
-	private SpriteBatch sb = new SpriteBatch();
 	
 	public Texto(String rutaFuente, int dimension, Color color, boolean sombra) {
 		generarTexto(rutaFuente, dimension, color, sombra);
@@ -36,9 +35,7 @@ public class Texto {
 	}
 	
 	public void dibujar() {
-		sb.begin();
-		fuente.draw(sb, texto, x, y);
-		sb.end();
+		fuente.draw(Render.sb, texto, x, y);
 	}
 	
 	public void setColor(Color color) {
