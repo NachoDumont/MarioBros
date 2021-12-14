@@ -61,7 +61,7 @@ public class PlayScreen implements Screen, JuegoEventListener {
 	
 	private World world;
 	// Dibuja el contorno de todas las cajas de colision
-	private Box2DDebugRenderer b2dr;
+//	private Box2DDebugRenderer b2dr;
 	private B2WorldCreator creator;
 
 	private Mario player,player2;
@@ -96,7 +96,7 @@ public class PlayScreen implements Screen, JuegoEventListener {
 
 		world = new World(new Vector2(0, -10), true);
 
-		b2dr = new Box2DDebugRenderer();
+//		b2dr = new Box2DDebugRenderer();
 
 		creator = new B2WorldCreator(this);
 
@@ -108,7 +108,7 @@ public class PlayScreen implements Screen, JuegoEventListener {
 		music = MarioBros.manager.get("audio/music/mario_music.ogg", Music.class);
 		music.setLooping(true);
 		music.setVolume(0.1f);
-		music.play();
+//		music.play();
 
 		items = new Array<Item>();
 		itemsToSpawn = new LinkedBlockingQueue<ItemDef>();
@@ -151,15 +151,15 @@ public class PlayScreen implements Screen, JuegoEventListener {
 //			if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && player.b2body.getLinearVelocity().x >= -2)
 //				player.correrIzquierda();
 //		}
+		
 //		if (player2.currentState != Mario.State.DEAD) {
 //			if (Gdx.input.isKeyJustPressed(Input.Keys.I))
 //				player2.jump();
-//			if (Gdx.input.isKeyPressed(Input.Keys.L) && player2.b2body.getLinearVelocity().x <= 2)
+//			if (Gdx.input.isKeyPressed(Input.Keys.L) && player2.b2body.getLinearVelocity().x <= 2) //Solo para pruebas
 //				player2.b2body.applyLinearImpulse(new Vector2(0.1f, 0), player2.b2body.getWorldCenter(), true);
 //			if (Gdx.input.isKeyPressed(Input.Keys.J) && player2.b2body.getLinearVelocity().x >= -2)
 //				player2.b2body.applyLinearImpulse(new Vector2(-0.1f, 0), player2.b2body.getWorldCenter(), true);
-////            if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE))
-////                player2.fire();
+
 //		}
 
 	}
@@ -224,7 +224,7 @@ public class PlayScreen implements Screen, JuegoEventListener {
 
 			renderer.render();
 
-			b2dr.render(world, gamecam.combined);
+//			b2dr.render(world, gamecam.combined);
 
 			Render.sb.setProjectionMatrix(gamecam.combined);
 			Render.begin();
@@ -293,7 +293,7 @@ public class PlayScreen implements Screen, JuegoEventListener {
 		map.dispose();
 		renderer.dispose();
 		world.dispose();
-		b2dr.dispose();
+//		b2dr.dispose();
 		hud.dispose();
 	}
 

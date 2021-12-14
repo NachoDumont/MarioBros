@@ -240,12 +240,10 @@ public class Mario extends Sprite {
 	
 	public void correrDerecha() {
 			b2body.applyLinearImpulse(new Vector2(0.1f, 0), b2body.getWorldCenter(), true);
-			currentState = State.RUNNING;
 		}
 
 	public void correrIzquierda() {
 			b2body.applyLinearImpulse(new Vector2(-0.1f, 0), b2body.getWorldCenter(), true);
-			currentState = State.RUNNING;
 		}
 	
 	public void hit(Enemy enemy) {
