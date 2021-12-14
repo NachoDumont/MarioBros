@@ -142,26 +142,25 @@ public class PlayScreen implements Screen, JuegoEventListener {
 	}
 
 	public void handleInput(float dt) {
-		if (player.currentState != Mario.State.DEAD) {
-			if (Gdx.input.isKeyJustPressed(Input.Keys.UP))
-				player.jump();
-			if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && player.b2body.getLinearVelocity().x <= 2)
-				player.b2body.applyLinearImpulse(new Vector2(0.1f, 0), player.b2body.getWorldCenter(), true); //TODO por que no usar player.correrDerecha?
-			if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && player.b2body.getLinearVelocity().x >= -2) //por que no poner aca adentro lo de keyUp y keyDown?
-				player.b2body.applyLinearImpulse(new Vector2(-0.1f, 0), player.b2body.getWorldCenter(), true);
-//            if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE))
-//                player.fire();
-		}
-		if (player2.currentState != Mario.State.DEAD) {
-			if (Gdx.input.isKeyJustPressed(Input.Keys.I))
-				player2.jump();
-			if (Gdx.input.isKeyPressed(Input.Keys.J) && player2.b2body.getLinearVelocity().x <= 2)
-				player2.b2body.applyLinearImpulse(new Vector2(0.1f, 0), player2.b2body.getWorldCenter(), true);
-			if (Gdx.input.isKeyPressed(Input.Keys.L) && player2.b2body.getLinearVelocity().x >= -2)
-				player2.b2body.applyLinearImpulse(new Vector2(-0.1f, 0), player2.b2body.getWorldCenter(), true);
-//            if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE))
-//                player2.fire();
-		}
+		
+//		if (player.currentState != Mario.State.DEAD) {
+//			if (Gdx.input.isKeyJustPressed(Input.Keys.UP))
+//				player.jump();
+//			if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && player.b2body.getLinearVelocity().x <= 2)
+//				player.correrDerecha();
+//			if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && player.b2body.getLinearVelocity().x >= -2)
+//				player.correrIzquierda();
+//		}
+//		if (player2.currentState != Mario.State.DEAD) {
+//			if (Gdx.input.isKeyJustPressed(Input.Keys.I))
+//				player2.jump();
+//			if (Gdx.input.isKeyPressed(Input.Keys.L) && player2.b2body.getLinearVelocity().x <= 2)
+//				player2.b2body.applyLinearImpulse(new Vector2(0.1f, 0), player2.b2body.getWorldCenter(), true);
+//			if (Gdx.input.isKeyPressed(Input.Keys.J) && player2.b2body.getLinearVelocity().x >= -2)
+//				player2.b2body.applyLinearImpulse(new Vector2(-0.1f, 0), player2.b2body.getWorldCenter(), true);
+////            if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE))
+////                player2.fire();
+//		}
 
 	}
 
@@ -175,7 +174,7 @@ public class PlayScreen implements Screen, JuegoEventListener {
 		player2.update(dt);
 		for (Enemy enemy : creator.getEnemies()) {
 			enemy.update(dt);
-			if (enemy.getX() < player.getX() + 224 / MarioBros.PPM) {
+			if (enemy.getX() < player.getX() + 224 / MarioBros.PPM || enemy.getX() < player2.getX() + 224 / MarioBros.PPM) {
 				enemy.b2body.setActive(true);
 			}
 		}
@@ -219,7 +218,7 @@ public class PlayScreen implements Screen, JuegoEventListener {
 	public void render(float delta) {
 		if(empieza) {
 			update(delta);
-
+			
 			Gdx.gl.glClearColor(0, 0, 0, 1);
 			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
@@ -332,7 +331,7 @@ public class PlayScreen implements Screen, JuegoEventListener {
 		}
 		if(keycode==Keys.RIGHT) {
 			cliente.enviarMensaje("ApretoDerecha");
-		}		
+		}
 		if(keycode==Keys.LEFT) {
 			cliente.enviarMensaje("ApretoIzquierda");
 		}
@@ -340,17 +339,27 @@ public class PlayScreen implements Screen, JuegoEventListener {
 
 	@Override
 	public void asignarJugador(int jugador) {
-		this.jugador  = jugador;
+		this.jugador = jugador;
 	}
 
 	@Override
-	public void asignarCoordenadas(int nroJugador, float coordenadasX, float coordenadasY) {
-		if(nroJugador==1) {
-			player.setY(coordenadasY);
-			player.setX(coordenadasX);
+	public void asignarCoordenadas(int nroJugador, String msg) {
+		if(nroJugador == 1) {
+			if(msg.equals("ApretoArriba")) {
+				player.jump();
+			} else if(msg.equals("ApretoIzquierda")) {
+				player.correrIzquierda();
+			} else if(msg.equals("ApretoDerecha")) {
+				player.correrDerecha();
+			}
 		} else {
-			player2.setY(coordenadasY);
-			player2.setX(coordenadasX);
+			if(msg.equals("ApretoArriba")) {
+				player2.jump();
+			} else if(msg.equals("ApretoIzquierda")) {
+				player2.correrIzquierda();
+			} else if(msg.equals("ApretoDerecha")) {
+				player2.correrDerecha();
+			}
 		}
 	}
 

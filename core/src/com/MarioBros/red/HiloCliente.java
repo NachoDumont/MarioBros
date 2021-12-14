@@ -61,10 +61,10 @@ public class HiloCliente extends Thread {
 			}
 
 			if (mensajeCompuesto[0].equals("coordenadas")) {
-				if (mensajeCompuesto[1].equals("p1")) {
-					Utiles.listener.asignarCoordenadas(1, Float.parseFloat(mensajeCompuesto[2]),Float.parseFloat(mensajeCompuesto[3]));
-				} else if (mensajeCompuesto[1].equals("p2")) {
-					Utiles.listener.asignarCoordenadas(2, Float.parseFloat(mensajeCompuesto[2]),Float.parseFloat(mensajeCompuesto[3]));
+				if (mensajeCompuesto[1].equals("player")) {
+					Utiles.listener.asignarCoordenadas(1, mensajeCompuesto[2]);
+				} else if (mensajeCompuesto[1].equals("player2")) {
+					Utiles.listener.asignarCoordenadas(2, mensajeCompuesto[2]);
 				}
 			}
 

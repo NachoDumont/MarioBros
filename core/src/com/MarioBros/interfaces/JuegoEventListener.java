@@ -9,7 +9,7 @@ public interface JuegoEventListener extends EventListener {
 	public void keyDown(int keycode);
 	
 	public void asignarJugador(int jugador);
-	public void asignarCoordenadas(int nroJugador, float coordenadasX, float coordenadasY);
+	public void asignarCoordenadas(int nroJugador, String msg);
 	public void actualizarPuntaje(int nroJugador);
 	public void terminoJuego(int nroJugador);
 
