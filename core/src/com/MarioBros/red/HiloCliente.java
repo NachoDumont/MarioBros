@@ -19,7 +19,7 @@ public class HiloCliente extends Thread {
 	public HiloCliente() {
 		// Cuando creas un socket en el servidor tenes que indicarle el puerto que se va a usar
 		try {
-			socket = new DatagramSocket();//Hay que buscar la manera de que se pueda conectar desde cualquier red
+			socket = new DatagramSocket();
 			ipServer = InetAddress.getByName("192.168.0.55"); //Se puede hacer broadcast también 255.255.255.255
 			enviarMensaje("Conectar");
 		} catch (UnknownHostException | SocketException e) {
@@ -40,7 +40,7 @@ public class HiloCliente extends Thread {
 				procesarMensaje(paquete);
 			} catch (IOException e) {
 				e.printStackTrace();
-			}	
+			}
 		}
 	}
 

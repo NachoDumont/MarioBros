@@ -40,11 +40,11 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class PlayScreen implements Screen, JuegoEventListener {
-	
+
 	private Cliente cliente;
 	boolean empieza = false;
 	private Entradas io;
-	
+
 	private MarioBros game;
 	private TextureAtlas atlas;
 	public static boolean alreadyDestroyed = false;
@@ -58,13 +58,13 @@ public class PlayScreen implements Screen, JuegoEventListener {
 	private OrthogonalTiledMapRenderer renderer;
 
 	private Texto espera;
-	
+
 	private World world;
 	// Dibuja el contorno de todas las cajas de colision
 //	private Box2DDebugRenderer b2dr;
 	private B2WorldCreator creator;
 
-	private Mario player,player2;
+	private Mario player, player2;
 
 	private Music music;
 
@@ -73,7 +73,7 @@ public class PlayScreen implements Screen, JuegoEventListener {
 	private int jugador = 0;
 
 	public PlayScreen(MarioBros game) {
-		
+
 		atlas = new TextureAtlas("Mario_and_Enemies.pack");
 
 		this.game = game;
@@ -84,10 +84,10 @@ public class PlayScreen implements Screen, JuegoEventListener {
 
 		hud = new Hud(Render.sb);
 
-		espera = new Texto(Recursos.FUENTE,40,Color.WHITE,false);
+		espera = new Texto(Recursos.FUENTE, 40, Color.WHITE, false);
 		espera.setTexto("Esperando otro jugador");
-		espera.setPosition((Config.ANCHO/2)-(espera.getAncho()/2),(Config.ALTO/2)+(espera.getAlto()/2));
-		
+		espera.setPosition((Config.ANCHO / 2) - (espera.getAncho() / 2), (Config.ALTO / 2) + (espera.getAlto() / 2));
+
 		maploader = new TmxMapLoader();
 		map = maploader.load("level1.tmx");
 		renderer = new OrthogonalTiledMapRenderer(map, 1 / MarioBros.PPM);
@@ -119,11 +119,11 @@ public class PlayScreen implements Screen, JuegoEventListener {
 		cliente = new Cliente();
 	}
 
-	public void spawnItem(ItemDef idef) {
+	public void spawnItem(ItemDef idef) { //pasamos la posicion para el item a spawnear
 		itemsToSpawn.add(idef);
 	}
 
-	public void handleSpawningItems() {
+	public void handleSpawningItems() { //spawnea el objeto en la posicion correcta
 		if (!itemsToSpawn.isEmpty()) {
 			ItemDef idef = itemsToSpawn.poll();
 			if (idef.type == Mushroom.class) {
@@ -142,7 +142,7 @@ public class PlayScreen implements Screen, JuegoEventListener {
 	}
 
 	public void handleInput(float dt) {
-		
+
 //		if (player.currentState != Mario.State.DEAD) {
 //			if (Gdx.input.isKeyJustPressed(Input.Keys.UP))
 //				player.jump();
@@ -151,7 +151,7 @@ public class PlayScreen implements Screen, JuegoEventListener {
 //			if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && player.b2body.getLinearVelocity().x >= -2)
 //				player.correrIzquierda();
 //		}
-		
+
 //		if (player2.currentState != Mario.State.DEAD) {
 //			if (Gdx.input.isKeyJustPressed(Input.Keys.I))
 //				player2.jump();
@@ -165,16 +165,16 @@ public class PlayScreen implements Screen, JuegoEventListener {
 	}
 
 	public void update(float dt) {
-		handleInput(dt);
+//		handleInput(dt);
 		handleSpawningItems();
-
 		world.step(1 / 60f, 6, 2);
 
 		player.update(dt);
 		player2.update(dt);
 		for (Enemy enemy : creator.getEnemies()) {
 			enemy.update(dt);
-			if (enemy.getX() < player.getX() + 224 / MarioBros.PPM || enemy.getX() < player2.getX() + 224 / MarioBros.PPM) {
+			if (enemy.getX() < player.getX() + 224 / MarioBros.PPM
+					|| enemy.getX() < player2.getX() + 224 / MarioBros.PPM) {
 				enemy.b2body.setActive(true);
 			}
 		}
@@ -187,27 +187,33 @@ public class PlayScreen implements Screen, JuegoEventListener {
 		if (player.getY() < 0) {
 			player.currentState = Mario.State.DEAD;
 		}
-		
+
 		if (player.getX() > 32.88f) {
 			player.llegoSalida();
-		}
-		
-		if (player.currentState != Mario.State.DEAD) {
-			gamecam.position.x = player.b2body.getPosition().x;
 		}
 
 		if (player2.getY() < 0) {
 			player2.currentState = Mario.State.DEAD;
 		}
-		
+
 		if (player2.getX() > 32.88f) {
 			player2.llegoSalida();
 		}
-		
-		if (player2.currentState != Mario.State.DEAD) {
-			gamecam.position.x = player2.b2body.getPosition().x;
+
+		if (jugador == 1) {
+			if (player.currentState != Mario.State.DEAD) {
+				gamecam.position.x = player.b2body.getPosition().x;
+			} else {
+				gamecam.position.x = player2.b2body.getPosition().x;
+			}
+		} else {
+			if (player2.currentState != Mario.State.DEAD) {
+				gamecam.position.x = player2.b2body.getPosition().x;
+			} else {
+				gamecam.position.x = player.b2body.getPosition().x;
+			}
 		}
-		
+
 		gamecam.update();
 
 		renderer.setView(gamecam);
@@ -216,10 +222,10 @@ public class PlayScreen implements Screen, JuegoEventListener {
 
 	@Override
 	public void render(float delta) {
-		if(empieza) {
+		if (empieza) {
 			update(delta);
-			
-			Gdx.gl.glClearColor(0, 0, 0, 1);
+
+			Gdx.gl.glClearColor(0, 0, 0, 1); //limpiamos la pantalla
 			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
 			renderer.render();
@@ -228,12 +234,12 @@ public class PlayScreen implements Screen, JuegoEventListener {
 
 			Render.sb.setProjectionMatrix(gamecam.combined);
 			Render.begin();
-				player.draw(Render.sb);
-				player2.draw(Render.sb);
-				for (Enemy enemy : creator.getEnemies())
-					enemy.draw(Render.sb);
-				for (Item item : items)
-					item.draw(Render.sb);
+			player.draw(Render.sb);
+			player2.draw(Render.sb);
+			for (Enemy enemy : creator.getEnemies())
+				enemy.draw(Render.sb);
+			for (Item item : items)
+				item.draw(Render.sb);
 			Render.end();
 
 			Render.sb.setProjectionMatrix(hud.stage.getCamera().combined);
@@ -243,17 +249,18 @@ public class PlayScreen implements Screen, JuegoEventListener {
 				game.setScreen(new GameOverScreen(game));
 				dispose();
 			}
-			
+
 		} else {
 			Render.begin();
-				espera.dibujar();
+			espera.dibujar();
 			Render.end();
 		}
-		
+
 	}
 
 	public boolean gameOver() {
-		if (player.currentState == Mario.State.DEAD && player.getStateTimer() > 3) {
+		if (player.currentState == Mario.State.DEAD && player.getStateTimer() > 3
+				&& player2.currentState == Mario.State.DEAD && player2.getStateTimer() > 3) {
 			return true;
 		}
 		return false;
@@ -313,26 +320,26 @@ public class PlayScreen implements Screen, JuegoEventListener {
 
 	@Override
 	public void keyUp(int keycode) {
-		if(keycode==Keys.UP) {
+		if (keycode == Keys.UP) {
 			cliente.enviarMensaje("DejoApretarArriba");
 		}
-		if(keycode==Keys.RIGHT) {
+		if (keycode == Keys.RIGHT) {
 			cliente.enviarMensaje("DejoApretarDerecha");
 		}
-		if(keycode==Keys.LEFT) {
+		if (keycode == Keys.LEFT) {
 			cliente.enviarMensaje("DejoApretarIzquierda");
 		}
 	}
-	
+
 	@Override
 	public void keyDown(int keycode) {
-		if(keycode==Keys.UP) {
+		if (keycode == Keys.UP) {
 			cliente.enviarMensaje("ApretoArriba");
 		}
-		if(keycode==Keys.RIGHT) {
+		if (keycode == Keys.RIGHT) {
 			cliente.enviarMensaje("ApretoDerecha");
 		}
-		if(keycode==Keys.LEFT) {
+		if (keycode == Keys.LEFT) {
 			cliente.enviarMensaje("ApretoIzquierda");
 		}
 	}
@@ -344,20 +351,20 @@ public class PlayScreen implements Screen, JuegoEventListener {
 
 	@Override
 	public void asignarCoordenadas(int nroJugador, String msg) {
-		if(nroJugador == 1) {
-			if(msg.equals("ApretoArriba")) {
+		if (nroJugador == 1) {
+			if (msg.equals("ApretoArriba")) {
 				player.jump();
-			} else if(msg.equals("ApretoIzquierda")) {
+			} else if (msg.equals("ApretoIzquierda")) {
 				player.correrIzquierda();
-			} else if(msg.equals("ApretoDerecha")) {
+			} else if (msg.equals("ApretoDerecha")) {
 				player.correrDerecha();
 			}
 		} else {
-			if(msg.equals("ApretoArriba")) {
+			if (msg.equals("ApretoArriba")) {
 				player2.jump();
-			} else if(msg.equals("ApretoIzquierda")) {
+			} else if (msg.equals("ApretoIzquierda")) {
 				player2.correrIzquierda();
-			} else if(msg.equals("ApretoDerecha")) {
+			} else if (msg.equals("ApretoDerecha")) {
 				player2.correrDerecha();
 			}
 		}
@@ -365,12 +372,12 @@ public class PlayScreen implements Screen, JuegoEventListener {
 
 	@Override
 	public void actualizarPuntaje(int nroJugador) {
-		
+
 	}
 
 	@Override
 	public void terminoJuego(int nroJugador) {
-		if(player.isPuedeSalir() && player2.isPuedeSalir()) {
+		if (player.isPuedeSalir() || player2.isPuedeSalir()) {
 			game.setScreen(new EndScreen(game));
 			dispose();
 		}
